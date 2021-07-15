@@ -7,6 +7,7 @@ import scipy.io.wavfile
 import matplotlib.pyplot as plt
 import copy
 import tensorflow as tf
+import os
 
 import tensorflow as tf
 from tensorflow import keras
@@ -28,25 +29,34 @@ micangles=list(map(list,zip(*micangles)))
 
 A = spy.sph.sh_matrix(N, micangles[1], micangles[0], SH_type='real', weights=None)
 
+files = os.listdir('../../iranroman/datasets/eigenscape8k/')
+
+X = []
+Y = []
+for f in files[:10]:
 # loading raw audio
-x, fs = librosa.load('data/Beach-01-Raw-8k.wav', sr=8000, mono=False)
+    print(f)
+    x, fs = librosa.load('../../iranroman/datasets/eigenscape8k/'+f, sr=8000, mono=False)
 
-nchans = 32
-datapoints = []
-targets = []
-nsamps = 2048
-ntime = 20
-for isamp in np.random.choice(x.shape[1], size=nsamps, replace=False):
-    for targetchan in range(nchans):
-    
-        Ax = [A*x[:,isamp+i-ntime+1][:,np.newaxis] for i in range(ntime)]
-        for isamp in range(ntime):
-            Ax[isamp][targetchan] = A[targetchan]
-        datapoints.append(Ax)
-        targets.append(np.atleast_1d(x[targetchan,isamp]))
+    nchans = 32
+    datapoints = []
+    targets = []
+    nsamps = 256
+    ntime = 20
+    for isamp in np.random.choice(int(x.shape[1]*0.8), size=nsamps, replace=False):
+        for targetchan in range(nchans):
+        
+            Ax = [A*x[:,isamp+i-ntime+1][:,np.newaxis] for i in range(ntime)]
+            for isamp in range(ntime):
+                Ax[isamp][targetchan] = A[targetchan]
+            datapoints.append(Ax)
+            targets.append(np.atleast_1d(x[targetchan,isamp]))
 
-X = np.array(datapoints).transpose(0,3,2,1)
-Y = np.array(targets)
+    X.append(np.array(datapoints).transpose(0,3,2,1))
+    Y.append(np.array(targets))
+
+X = np.vstack(X)
+Y = np.vstack(Y)
 
 with open('data.npy', 'wb') as f:
 	np.save(f, X)
@@ -59,6 +69,8 @@ normalizer.adapt(train_features)
 
 model = tf.keras.models.Sequential()
 model.add(normalizer)
+model.add(layers.RepeatVector(25))
+model.add(layers.MultiplyRepeatVector(25))
 model.add(layers.Conv2D(32, (4, 5), activation='relu', input_shape=(25, 32, 20), padding='valid'))
 model.add(layers.MaxPooling2D((2, 2), padding='same'))
 model.add(layers.Conv2D(64, (4, 5), activation='relu', padding='valid'))
