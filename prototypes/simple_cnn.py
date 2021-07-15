@@ -27,13 +27,13 @@ with open('../MADA/mic_arr_shapes/eigenmike_theta_phi_rho.csv', newline='') as c
 
 micangles=list(map(list,zip(*micangles)))
 
-A = spy.sph.sh_matrix(N, micangles[1], micangles[0], SH_type='real', weights=None)
+A = spy.sph.sh_matrix(N, micangles[1], micangles[0], SH_type='real', weights=None).T
 
 files = os.listdir('../../iranroman/datasets/eigenscape8k/')
 
 X = []
 Y = []
-for f in files[:10]:
+for f in files[:1]:
 # loading raw audio
     print(f)
     x, fs = librosa.load('../../iranroman/datasets/eigenscape8k/'+f, sr=8000, mono=False)
@@ -46,9 +46,9 @@ for f in files[:10]:
     for isamp in np.random.choice(int(x.shape[1]*0.8), size=nsamps, replace=False):
         for targetchan in range(nchans):
         
-            Ax = [A*x[:,isamp+i-ntime+1][:,np.newaxis] for i in range(ntime)]
+            Ax = [x[:,isamp+i-ntime+1][:,np.newaxis] for i in range(ntime)]
             for isamp in range(ntime):
-                Ax[isamp][targetchan] = A[targetchan]
+                Ax[isamp][targetchan] = 0
             datapoints.append(Ax)
             targets.append(np.atleast_1d(x[targetchan,isamp]))
 
@@ -64,21 +64,38 @@ with open('data.npy', 'wb') as f:
 
 train_features = X.copy()
 train_labels = Y
-normalizer = preprocessing.Normalization(axis=[1,2,3])
-normalizer.adapt(train_features)
 
-model = tf.keras.models.Sequential()
-model.add(normalizer)
-model.add(layers.RepeatVector(25))
-model.add(layers.MultiplyRepeatVector(25))
-model.add(layers.Conv2D(32, (4, 5), activation='relu', input_shape=(25, 32, 20), padding='valid'))
-model.add(layers.MaxPooling2D((2, 2), padding='same'))
-model.add(layers.Conv2D(64, (4, 5), activation='relu', padding='valid'))
-model.add(layers.MaxPooling2D((2, 2), padding='same'))
-model.add(layers.Conv2D(64, (4, 3), activation='relu', padding='valid'))
-model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(1))
+input_data = tf.keras.Input(shape=(1,32,20))
+sph_harm = tf.keras.Input(shape=(25,32,20))
+norm = preprocessing.Normalization(axis=[2,3])(input_data)
+rep = layers.Lambda(lambda x: tf.keras.backend.repeat_elements(x=x, rep=25, axis=1))(norm)
+mult = layers.Multiply()([sph_harm,rep])
+conv1 = layers.Conv2D(32, (4, 5), activation='relu', input_shape=(25, 32, 20), padding='valid')(mult)
+maxp1 = layers.MaxPooling2D((2, 2), padding='same')(conv1)
+conv2 = layers.Conv2D(64, (4, 5), activation='relu', padding='valid')(maxp1)
+maxp2 = layers.MaxPooling2D((2, 2), padding='same')(conv2)
+conv3 = layers.Conv2D(64, (4, 3), activation='relu', padding='valid')(maxp2)
+flat = layers.Flatten()(conv3)
+dense = layers.Dense(64, activation='relu')(flat)
+out  = layers.Dense(1)(dense)
+
+model = tf.keras.Model(inputs=[input_data,sph_harm], outputs=out)
+model.summary()
+
+#normalizer = preprocessing.Normalization(axis=[1,2,3])
+#normalizer.adapt(train_features)
+#model = tf.keras.models.Sequential()
+#model.add(normalizer)
+#model.add(layers.RepeatVector(25))
+#model.add(layers.MultiplyRepeatVector(25))
+#model.add(layers.Conv2D(32, (4, 5), activation='relu', input_shape=(25, 32, 20), padding='valid'))
+#model.add(layers.MaxPooling2D((2, 2), padding='same'))
+#model.add(layers.Conv2D(64, (4, 5), activation='relu', padding='valid'))
+#model.add(layers.MaxPooling2D((2, 2), padding='same'))
+#model.add(layers.Conv2D(64, (4, 3), activation='relu', padding='valid'))
+#model.add(layers.Flatten())
+#model.add(layers.Dense(64, activation='relu'))
+#model.add(layers.Dense(1))
 
 model.compile(
     optimizer=tf.optimizers.Adam(learning_rate=0.001),
@@ -97,7 +114,7 @@ checkpoint = ModelCheckpoint(
 )
 
 history = model.fit(
-    train_features, train_labels, 
+    [train_features, np.tile(A[np.newaxis,:,:,np.newaxis],(train_features.shape[0],1,1,20))], train_labels, 
     epochs=100000,
     # suppress logging
     verbose=1,
