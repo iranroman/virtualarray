@@ -29,19 +29,19 @@ micangles=list(map(list,zip(*micangles)))
 
 A = spy.sph.sh_matrix(N, micangles[1], micangles[0], SH_type='real', weights=None).T
 
-files = os.listdir('../../iranroman/datasets/eigenscape8k/')
+files = os.listdir('../../iranroman/datasets/aggregate/')
 
 X = []
 Y = []
 for f in files:
 # loading raw audio
     print(f)
-    x, fs = librosa.load('../../iranroman/datasets/eigenscape8k/'+f, sr=8000, mono=False)
+    x, fs = librosa.load('../../iranroman/datasets/aggregate/'+f, sr=8000, mono=False)
 
     nchans = 32
     datapoints = []
     targets = []
-    nsamps = 128
+    nsamps = 64
     ntime = 20
     for isamp in np.random.choice(int(x.shape[1]*0.8), size=nsamps, replace=False):
         for targetchan in range(nchans):
