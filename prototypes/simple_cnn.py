@@ -33,7 +33,7 @@ files = os.listdir('../../iranroman/datasets/eigenscape8k/')
 
 X = []
 Y = []
-for f in files[:1]:
+for f in files:
 # loading raw audio
     print(f)
     x, fs = librosa.load('../../iranroman/datasets/eigenscape8k/'+f, sr=8000, mono=False)
@@ -41,14 +41,14 @@ for f in files[:1]:
     nchans = 32
     datapoints = []
     targets = []
-    nsamps = 256
+    nsamps = 128
     ntime = 20
     for isamp in np.random.choice(int(x.shape[1]*0.8), size=nsamps, replace=False):
         for targetchan in range(nchans):
         
             Ax = [x[:,isamp+i-ntime+1][:,np.newaxis] for i in range(ntime)]
             for isamp in range(ntime):
-                Ax[isamp][targetchan] = 0
+                Ax[isamp][targetchan] = 1
             datapoints.append(Ax)
             targets.append(np.atleast_1d(x[targetchan,isamp]))
 
@@ -57,6 +57,11 @@ for f in files[:1]:
 
 X = np.vstack(X)
 Y = np.vstack(Y)
+
+shuffle_samples = np.random.choice(X.shape[0], size=X.shape[0], replace=False)
+X = X[shuffle_samples]
+Y = Y[shuffle_samples]
+
 
 with open('data.npy', 'wb') as f:
 	np.save(f, X)
@@ -113,6 +118,15 @@ checkpoint = ModelCheckpoint(
 	save_best_only=True
 )
 
+ntest = 10000
+test_samples = np.random.choice(train_features.shape[0], size=ntest, replace=False)
+loss = model.evaluate(
+            [train_features[test_samples], np.tile(A[np.newaxis,:,:,np.newaxis],(ntest,1,1,20))],
+            train_labels[test_samples],
+            batch_size = 8192
+        )
+print(loss)
+
 history = model.fit(
     [train_features, np.tile(A[np.newaxis,:,:,np.newaxis],(train_features.shape[0],1,1,20))], train_labels, 
     epochs=100000,
@@ -120,4 +134,5 @@ history = model.fit(
     verbose=1,
     # Calculate validation results on 20% of the training data
     validation_split = 0.2,
+    batch_size=8192,
     callbacks = [early_stopping, checkpoint])
