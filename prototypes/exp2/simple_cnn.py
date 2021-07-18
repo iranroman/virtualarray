@@ -1,0 +1,126 @@
+import spaudiopy as spy
+import csv
+import math
+import librosa
+import numpy as np
+import scipy.io.wavfile
+import matplotlib.pyplot as plt
+import copy
+import tensorflow as tf
+import os
+
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.layers.experimental import preprocessing
+
+print(tf.__version__)
+
+N = 1
+
+# generating matrix with spherical harmonics    
+micangles = []
+with open('../MADA/mic_arr_shapes/eigenmike_theta_phi_rho.csv', newline='') as csvfile:
+    csvfile = csv.reader(csvfile, delimiter=',')
+    for irow, row in enumerate(csvfile):
+        if irow == 5 or irow == 9 or irow == 25 or irow == 21:
+            micangles.append([float(i)*math.pi/180 for i in row[:-1]])
+
+micangles=list(map(list,zip(*micangles)))
+
+A = spy.sph.sh_matrix(N, micangles[1], micangles[0], SH_type='real', weights=None).T
+
+files = os.listdir('../../iranroman/datasets/aggregate/')
+
+X = []
+Y = []
+for f in files:
+# loading raw audio
+    print(f)
+    x, fs = librosa.load('../../iranroman/datasets/aggregate/'+f, sr=8000, mono=False)
+
+    x = x[[5,9,21,25]]
+
+    nchans = 4
+    datapoints = []
+    targets = []
+    nsamps = 1024
+    ntime = 20
+    for isamp in np.random.choice(int(x.shape[1]*0.8), size=nsamps, replace=False):
+        for targetchan in range(nchans):
+        
+            Ax = [x[:,isamp+i-ntime+1][:,np.newaxis] for i in range(ntime)]
+            for isamp in range(ntime):
+                Ax[isamp][targetchan] = 1
+            datapoints.append(Ax)
+            targets.append(np.atleast_1d(x[targetchan,isamp]))
+
+    X.append(np.array(datapoints).transpose(0,3,2,1))
+    Y.append(np.array(targets))
+
+X = np.vstack(X)
+Y = np.vstack(Y)
+
+shuffle_samples = np.random.choice(X.shape[0], size=X.shape[0], replace=False)
+X = X[shuffle_samples]
+Y = Y[shuffle_samples]
+
+
+with open('data.npy', 'wb') as f:
+	np.save(f, X)
+	np.save(f, Y)
+
+train_features = X.copy()
+train_labels = Y
+
+input_data = tf.keras.Input(shape=(1,4,20))
+sph_harm = tf.keras.Input(shape=(4,4,20))
+norm = preprocessing.Normalization(axis=[2,3])(input_data)
+rep = layers.Lambda(lambda x: tf.keras.backend.repeat_elements(x=x, rep=4, axis=1))(norm)
+mult = layers.Multiply()([sph_harm,rep])
+conv1 = layers.Conv2D(32, (2, 2), activation='relu', input_shape=(4, 4, 20), padding='valid')(mult)
+maxp1 = layers.MaxPooling2D((2, 2), padding='same')(conv1)
+conv2 = layers.Conv2D(64, (2, 2), activation='relu', padding='valid')(maxp1)
+#maxp2 = layers.MaxPooling2D((2, 2), padding='same')(conv2)
+#conv3 = layers.Conv2D(64, (2, 2), activation='relu', padding='valid')(maxp2)
+flat = layers.Flatten()(conv2)
+dense = layers.Dense(64, activation='relu')(flat)
+out  = layers.Dense(1)(dense)
+
+model = tf.keras.Model(inputs=[input_data,sph_harm], outputs=out)
+model.summary()
+
+model.compile(
+    optimizer=tf.optimizers.Adam(learning_rate=0.001),
+    loss='mse')
+
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+early_stopping = EarlyStopping(patience=1000)
+checkpoint_path = 'model_checkpoints/'
+checkpoint = ModelCheckpoint(
+    filepath=checkpoint_path,
+    save_weights_only=True,
+	monitor='val_loss',
+    save_freq='epoch',
+    verbose=1,
+	save_best_only=True
+)
+
+ntest = 10000
+test_samples = np.random.choice(train_features.shape[0], size=ntest, replace=False)
+loss = model.evaluate(
+            [train_features[test_samples], np.tile(A[np.newaxis,:,:,np.newaxis],(ntest,1,1,20))],
+            train_labels[test_samples],
+            batch_size = 8192
+        )
+print(loss)
+
+history = model.fit(
+    [train_features, np.tile(A[np.newaxis,:,:,np.newaxis],(train_features.shape[0],1,1,20))], train_labels, 
+    epochs=100000,
+    # suppress logging
+    verbose=1,
+    # Calculate validation results on 20% of the training data
+    validation_split = 0.2,
+    batch_size=8192,
+    callbacks = [early_stopping, checkpoint])
