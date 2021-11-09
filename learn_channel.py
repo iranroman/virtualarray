@@ -9,7 +9,7 @@ fs = marco_dataset.fs
 
 channels_img = 1
 out_channels = 4
-K = 30
+K = 8
 
 # supplementary network parameters
 sH1 = 32
@@ -23,14 +23,16 @@ sW3 = tf.Variable(tf.initializers.HeNormal()(shape=(1,sH2,sH3)))
 sb3 = tf.Variable(tf.initializers.HeNormal()(shape=(1,sH3)))
 
 F2 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,out_channels,1)))
-F3 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,1,out_channels)))
+F3 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,out_channels,out_channels)))
 optimizer = tf.optimizers.Adam(learning_rate=0.0001) 
 mse = tf.losses.MeanSquaredError()
 
 all_vars = [sW1,sb1,sW2,sb2,sW3,sb3,F2,F3]
 
 marco_data = {m:{} for m in marco_dataset.array_names}
-for array in ['Eigenmike']:#marco_data.keys():
+for array in marco_data.keys():
+    if array == 'Eigenmike':
+        continue
     for ss in ['impulse_response+90d']:#marco_dataset.sound_sources:
         print('getting ', array, ' ', ss)
         X = marco_dataset.get_audio_numpy(array, ss)
@@ -39,7 +41,6 @@ for array in ['Eigenmike']:#marco_data.keys():
         nfft = 1024
         X = np.array([X[:,i*fs:i*fs+fs] for i in range(X.shape[1]//fs)])
         marco_data[array][ss] = np.array([[np.abs(librosa.stft(i, n_fft=nfft, hop_length=nfft//2)) for i in x] for x in X])
-        
 
 for epoch in range(2000):
 
@@ -52,11 +53,11 @@ for epoch in range(2000):
             data = marco_data[array][ss]
             nchans = data.shape[1]
 
-            for in_size in range(nchans-2,nchans-1):
+            for in_size in reversed(range(nchans-2,nchans)):
 
                 total_error = 0
                 for ichan in range(nchans):
-                    print('in_size: ', in_size, 'ichan_out: ', ichan)
+                    print('array ', array, 'in_size: ', in_size, 'out of ',len(coords),'ichan_out: ', ichan)
 
                     chan_range = list(range(nchans))
                     chan_range.remove(ichan)
@@ -69,11 +70,11 @@ for epoch in range(2000):
                         X = data[:,np.array(chans_in)]
                         Xc = coords[np.array(chans_in)][np.newaxis,:].astype(np.float32)
                         Y = data[:,ichan]
-                        Yc = coords[ichan]
+                        Yc = coords[[ichan]]
                         N, MB, H, W = X.shape
 
                         for i in range(N):
-                        
+                      
                             with tf.GradientTape() as g:
                                 # supplementary network operations
                                 sh1 = tf.nn.relu(tf.add(tf.matmul(Xc, sW1), sb1))
