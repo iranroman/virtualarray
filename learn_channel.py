@@ -6,89 +6,90 @@ from micarraylib.datasets import marco
 import matplotlib.pyplot as plt
 
 marco_dataset = marco(download=False, data_home='/home/iran/datasets/marco')
+marco_dataset.fs = 8000
 fs = marco_dataset.fs
 
-channels_img = 1
-out_channels = 32
-K = 8
+# CNN parameters
+K = 32
+ch1 = 16 
+F1 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,1,ch1)))
+b1 = tf.Variable(tf.constant_initializer(0.0)(shape=(ch1)))
+ch2 = 32
+F2 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,ch1,ch2)))
+b2 = tf.Variable(tf.constant_initializer(0.0)(shape=(ch2)))
+ch3 = 64
+F3 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,ch2,ch3)))
+b3 = tf.Variable(tf.constant_initializer(0.0)(shape=(ch3)))
+ch4 = ch3
+F4 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,ch4,ch3)))
+b4 = tf.Variable(tf.constant_initializer(0.0)(shape=(ch4)))
+ch5 = ch2
+F5 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,ch5,ch4)))
+b5 = tf.Variable(tf.constant_initializer(0.0)(shape=(ch5)))
+ch6 = ch1
+F6 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,ch6,ch5)))
+b6 = tf.Variable(tf.constant_initializer(0.0)(shape=(ch6)))
+ch7 = 1
+F7 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,ch6,ch7)))
+b7 = tf.Variable(tf.constant_initializer(0.0)(shape=(ch7)))
 
-# supplementary network parameters
+# capsule coordinates network parameters
 sH1 = 32
-sW1 = tf.Variable(tf.initializers.HeNormal()(shape=(1,3,sH1)))
-sb1 = tf.Variable(tf.initializers.HeNormal()(shape=(1,sH1)))
+sW1 = tf.Variable(tf.initializers.HeNormal()(shape=(3,sH1)))
+sb1 = tf.Variable(tf.initializers.HeNormal()(shape=(sH1,)))
 sH2 = 64
-sW2 = tf.Variable(tf.initializers.HeNormal()(shape=(1,sH1,sH2)))
-sb2 = tf.Variable(tf.initializers.HeNormal()(shape=(1,sH2)))
-sH3 = K*K*(out_channels)
-sW3 = tf.Variable(tf.initializers.HeNormal()(shape=(1,sH2,sH3)))
-sb3 = tf.Variable(tf.initializers.HeNormal()(shape=(1,sH3)))
+sW2 = tf.Variable(tf.initializers.HeNormal()(shape=(sH1,sH2)))
+sb2 = tf.Variable(tf.initializers.HeNormal()(shape=(sH2,)))
+sH3 = K*K*(ch1)
+sW3 = tf.Variable(tf.initializers.HeNormal()(shape=(sH2,sH3)))
+sb3 = tf.Variable(tf.initializers.HeNormal()(shape=(sH3,)))
+nnw = tf.Variable(tf.constant_initializer(0.0)(shape=(1,)))
 
-b1 = tf.Variable(tf.constant_initializer(0.0)(shape=(out_channels)))
-F2 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,out_channels,32)))
-b2 = tf.Variable(tf.constant_initializer(0.0)(shape=(32)))
-F3 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,32,64)))
-b3 = tf.Variable(tf.constant_initializer(0.0)(shape=(64)))
-F4 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,64,64)))
-b4 = tf.Variable(tf.constant_initializer(0.0)(shape=(64)))
-F5 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,32,64)))
-b5 = tf.Variable(tf.constant_initializer(0.0)(shape=(32)))
-F6 = tf.Variable(tf.initializers.HeNormal()(shape=(K,K,out_channels,32)))
-b6 = tf.Variable(tf.constant_initializer(0.0)(shape=(out_channels)))
-b7 = tf.Variable(tf.constant_initializer(0.0)(shape=(1)))
-optimizer = tf.optimizers.Adam(learning_rate=0.001) 
+# optimizer variables
+lr = 1e-6
+optimizer = tf.optimizers.Adam(learning_rate=lr) 
 mse = tf.losses.MeanSquaredError()
+all_vars = [sW1,sb1,sW2,sb2,sW3,sb3,F1,F2,F3,F4,F5,F6,F7,b1,b2,b3,b4,b5,b6,b7,nnw]
 
-all_vars = [sW1,sb1,sW2,sb2,sW3,sb3,F2,F3,F4,F5,F6,b1,b2,b3,b4,b5,b6,b7]
-
+# obtaining the data
 marco_data = {m:{} for m in marco_dataset.array_names}
+del marco_data['Eigenmike']
 for array in marco_data.keys():
-    if array == 'Eigenmike':
-        continue
-    for ss in ['impulse_response-90d','impulse_response-45d','impulse_response+45d','impulse_response+90d']:#marco_dataset.sound_sources:
+    for ss in ['impulse_response-90d','impulse_response-45d','impulse_response+45d','impulse_response+90d']:
         print('getting ', array, ' ', ss)
-        X = marco_dataset.get_audio_numpy(array, ss)
+        X = marco_dataset.get_audio_numpy(ss, array)
 
         # extract features
         nfft = 1024
-        X = np.array([X[:,i*fs:i*fs+fs] for i in range(X.shape[1]//fs)])
-        X = np.array([[np.abs(librosa.stft(i, n_fft=nfft, hop_length=nfft//2)) for i in x] for x in X])
-        marco_data[array][ss] = X
+        X = np.array([np.abs(librosa.stft(x, n_fft=nfft, hop_length=nfft//2)) for x in X]).transpose(1,2,0)
+        X = 20*np.log10(X) 
+        X = (X - np.mean(X,axis=tuple(range(0,X.ndim-1))))/np.std(X,axis=tuple(range(0,X.ndim-1)))
+        marco_data[array][ss] = X 
 
 @tf.function()
-def forward_pass(X,Xc,Yc,all_vars,N,MB,H,W,out_channels,channels_img):
+def forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1):
 
-    sW1,sb1,sW2,sb2,sW3,sb3,F2,F3,F4,F5,F6,b1,b2,b3,b4,b5,b6,b7 = all_vars
+    # unpack variables
+    sW1,sb1,sW2,sb2,sW3,sb3,F1,F2,F3,F4,F5,F6,F7,b1,b2,b3,b4,b5,b6,b7,nnw = all_vars
 
+    # process input capsule coordinates
     sh1 = tf.nn.relu(tf.add(tf.matmul(Xc, sW1), sb1))
     sh2 = tf.nn.relu(tf.add(tf.matmul(sh1, sW2), sb2))
     sh3 = tf.add(tf.matmul(sh2, sW3), sb3)
+    F = tf.reshape(sh3, (K,K,chans_in,ch1))
+
+    # process output chapsule coordinates
     sf1 = tf.nn.relu(tf.add(tf.matmul(Yc, sW1), sb1))
     sf2 = tf.nn.relu(tf.add(tf.matmul(sf1, sW2), sb2))
-    fo = tf.add(tf.matmul(sf2, sW3), sb3)
-    F = tf.reshape(sh3, (MB,K,K,1,out_channels))
-    fo = tf.reshape(fo, (K,K,out_channels,1))
+    Fo = tf.add(tf.matmul(sf2, sW3), sb3)
+    Fo = tf.reshape(Fo, (K,K,ch1,1))
     
-    MB, fh, fw, channels, out_channels = F.shape
-    
-    # F has shape (MB, fh, fw, channels, out_channels)
-    # REM: with the notation in the question, we need: channels_img==channels
-    
-    Fd = tf.transpose(F, [1, 2, 0, 3, 4])
-    Fd = tf.reshape(Fd, [fh, fw, channels*MB, out_channels])
-    
-    inp_r = tf.transpose(X, [1, 2, 0, 3]) # shape (H, W, MB, channels_img)
-    inp_r = tf.reshape(inp_r, [1, H, W, MB*channels_img])
-    
-    out = tf.nn.depthwise_conv2d(
-              inp_r,
-              filter=Fd,
-              strides=[1, 1, 1, 1],
-              padding="SAME") # here no requirement about padding being 'VALID', use whatever you want. 
-    
-    out = tf.reshape(out, [H, W, MB, channels, out_channels])
-    out = tf.transpose(out, [2, 0, 1, 3, 4])
-    out = tf.reduce_sum(out, axis=3)
-    out = tf.reduce_sum(out,axis=0,keepdims=True)
+    # combine filters
+    F1p = tf.repeat(F1,chans_in,axis=2)*tf.nn.softmax(F,axis=2) + 0*nnw*F
+    F7p = F7*tf.nn.softmax(Fo,axis=2) + 0*nnw*Fo
+
+    # pass 
+    out = tf.nn.conv2d(X,F1p,[1,1,1,1],padding='SAME')
     out1 = tf.nn.relu(tf.nn.bias_add(out,b1))
     out = tf.nn.max_pool2d(out1, ksize=4, strides=2, padding="SAME")
     out = tf.nn.conv2d(out, F2, [1,1,1,1], padding="SAME")
@@ -103,72 +104,76 @@ def forward_pass(X,Xc,Yc,all_vars,N,MB,H,W,out_channels,channels_img):
     out = tf.nn.relu(tf.nn.bias_add(out,b5))
     out = tf.nn.conv2d_transpose(out, F6, out1.shape, [1,2,2,1], padding="SAME")
     out = tf.nn.relu(tf.nn.bias_add(out,b6))
-    out = tf.nn.conv2d(out, fo, [1,1,1,1], padding="SAME")
+    out = tf.nn.conv2d(out, F7p, [1,1,1,1], padding="SAME")
     out = tf.nn.relu(tf.nn.bias_add(out,b7))
     return out
 
-print("====================================")
-print("====================================")
-print("====================================")
-print("Training set error (before training)")
-# error before training
-for array in marco_data.keys():
-
-    coords = np.array([v for v in marco_dataset.capsule_coords[array].values()])
-
-    for ss in marco_data[array].keys():
-
-        data = marco_data[array][ss]
-        nchans = data.shape[1]
-
-        for in_size in reversed(range(nchans-2,nchans)):
-
-            total_error = 0
-            for ichan in range(nchans):
-                #print('array ', array, 'in_size: ', in_size, 'out of ',len(coords),'ichan_out: ', ichan)
-
-                chan_range = list(range(nchans))
-                chan_range.remove(ichan)
-
-                all_chans_in = combinations(chan_range, in_size)
-                ncombs = sum(1 for i in all_chans_in)
-                all_chans_in = combinations(chan_range, in_size)
-
-                for chans_in in all_chans_in:
-
-                    X = data[:,np.array(chans_in)]
-                    Xc = coords[np.array(chans_in)][np.newaxis,:].astype(np.float32)
-                    Y = data[:,ichan]
-                    Yc = coords[[ichan]]
-                    N, MB, H, W = X.shape
-
-                    for i in range(N):
-                  
-                        # supplementary network operations
-                        out = forward_pass(X[i][...,np.newaxis],Xc,Yc[np.newaxis,...].astype(np.float32),all_vars,N,MB,H,W,out_channels,channels_img)
-                        error = mse(out,Y[i][np.newaxis,...,np.newaxis])
+def training_error():
+    print("====================================")
+    print("====================================")
+    print("====================================")
+    print("Training set error (before training)")
+    # error before training
+    epoch_error = 0
+    for array in marco_data.keys():
+    
+        coords, _ = marco_dataset.get_capsule_coords_numpy(array)
+    
+        for ss in marco_data[array].keys():
+    
+            data = marco_data[array][ss]
+            nchans = data.shape[-1]
+    
+            for in_size in reversed(range(nchans-2,nchans)):
+    
+                total_error = 0
+                for ichan in range(nchans):
+    
+                    chan_range = list(range(nchans))
+                    chan_range.remove(ichan)
+    
+                    all_chans_in = combinations(chan_range, in_size)
+                    ncombs = sum(1 for i in all_chans_in)
+                    all_chans_in = combinations(chan_range, in_size)
+    
+                    for chans_in in all_chans_in:
+                        
+                        X = data[...,np.array(chans_in)][np.newaxis]
+                        Xc = coords[np.array(chans_in)].astype(np.float32)
+                        Y = data[...,[ichan]][np.newaxis]
+                        Yc = coords[[ichan]].astype(np.float32)
+                        N, H, W, chans_in = X.shape
+                      
+                        out = forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1)
+                        error = mse(out,Y)
                         total_error += error.numpy()
-                    total_error /= N 
-                total_error /= ncombs 
-            total_error /= nchans 
-            print(array, 'with ',ss,'source and',in_size, 'in chans error was: ', total_error)
+                    total_error /= ncombs 
+                total_error /= nchans 
+                epoch_error += total_error
+                print(array, 'with ',ss,'and',in_size, 'in chans error was: ', total_error)
+            epoch_error /= len(range(nchans-2,nchans))
+        epoch_error /= len(marco_data[array].keys())
+    print('Total error was', epoch_error)
+    print("filter weight is", all_vars[-1].numpy())
 
-for epoch in range(100):
+training_error()
 
+best_MSE = float("inf")
+for epoch in range(1000):
+    epoch_error = 0
     for array in marco_data.keys():
 
-        coords = np.array([v for v in marco_dataset.capsule_coords[array].values()])
+        coords, _ = marco_dataset.get_capsule_coords_numpy(array)
 
         for ss in marco_data[array].keys():
 
             data = marco_data[array][ss]
-            nchans = data.shape[1]
+            nchans = data.shape[-1]
 
             for in_size in reversed(range(nchans-2,nchans)):
 
                 total_error = 0
                 for ichan in range(nchans):
-                    #print('array ', array, 'in_size: ', in_size, 'out of ',len(coords),'ichan_out: ', ichan)
 
                     chan_range = list(range(nchans))
                     chan_range.remove(ichan)
@@ -179,91 +184,49 @@ for epoch in range(100):
 
                     for chans_in in all_chans_in:
 
-                        X = data[:,np.array(chans_in)]
-                        Xc = coords[np.array(chans_in)][np.newaxis,:].astype(np.float32)
-                        Y = data[:,ichan]
-                        Yc = coords[[ichan]]
-                        N, MB, H, W = X.shape
+                        X = data[...,np.array(chans_in)][np.newaxis]
+                        Xc = coords[np.array(chans_in)].astype(np.float32)
+                        Y = data[...,[ichan]][np.newaxis]
+                        Yc = coords[[ichan]].astype(np.float32)
+                        N, H, W, chans_in = X.shape
 
-                        for i in range(N):
-                      
-                            with tf.GradientTape() as g:
-                                # supplementary network operations
-                                out = forward_pass(X[i][...,np.newaxis],Xc,Yc[np.newaxis,...].astype(np.float32),all_vars,N,MB,H,W,out_channels,channels_img)
-                                error = mse(out,Y[i][np.newaxis,...,np.newaxis])
-                                total_error += error.numpy()
-                            gradients = g.gradient(error,all_vars)
-                            optimizer.apply_gradients(zip(gradients,all_vars))
-                        total_error /= N 
+                        with tf.GradientTape() as g:
+                            out= forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1)
+                            error = mse(out,Y)
+                            total_error += error.numpy()
+                        gradients = g.gradient(error,all_vars)
+                        optimizer.apply_gradients(zip(gradients,all_vars))
                     total_error /= ncombs 
                 total_error /= nchans 
+                epoch_error += total_error
                 print('epoch: ', epoch, array, 'with ',in_size, 'input chans. MSE: ', total_error)
+            epoch_error /= len(range(nchans-2,nchans))
+        epoch_error /= len(marco_data[array].keys())
+    print('Epoch ', epoch, 'error was', epoch_error)
+    print("filter weight is", all_vars[-1].numpy())
+    if epoch_error < best_MSE:
+        best_MSE = epoch_error
+        print("****************************")
+        print("NEW best epoch error found!")
+        print("saving parameters")
+        [np.save(''.join(['parameter_',str(i),'.npy']),a.numpy()) for i,a in enumerate(all_vars)]
+        print("****************************")
 
-print("====================")
-print("====================")
-print("====================")
-print("Training set error")
-# error after training
-for array in marco_data.keys():
+training_error()
 
-    coords = np.array([v for v in marco_dataset.capsule_coords[array].values()])
-
-    for ss in marco_data[array].keys():
-
-        data = marco_data[array][ss]
-        nchans = data.shape[1]
-
-        for in_size in reversed(range(nchans-2,nchans)):
-
-            total_error = 0
-            for ichan in range(nchans):
-                #print('array ', array, 'in_size: ', in_size, 'out of ',len(coords),'ichan_out: ', ichan)
-
-                chan_range = list(range(nchans))
-                chan_range.remove(ichan)
-
-                all_chans_in = combinations(chan_range, in_size)
-                ncombs = sum(1 for i in all_chans_in)
-                all_chans_in = combinations(chan_range, in_size)
-
-                for chans_in in all_chans_in:
-
-                    X = data[:,np.array(chans_in)]
-                    Xc = coords[np.array(chans_in)][np.newaxis,:].astype(np.float32)
-                    Y = data[:,ichan]
-                    Yc = coords[[ichan]]
-                    N, MB, H, W = X.shape
-
-                    for i in range(N):
-                  
-                        # supplementary network operations
-                        out = forward_pass(X[i][...,np.newaxis],Xc,Yc[np.newaxis,...].astype(np.float32),all_vars,N,MB,H,W,out_channels,channels_img)
-                        error = mse(out,Y[i][np.newaxis,...,np.newaxis])
-                        total_error += error.numpy()
-                        if i==0 and ichan == nchans//2:
-                            fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-                            axs[0].imshow(Y[i],aspect='auto')
-                            axs[1].imshow(np.squeeze(out),aspect='auto')
-                            plt.savefig('_'.join(['train',ss,array,str(in_size),'.png']))
-                            plt.close()
-                            total_error /= N 
-                total_error /= ncombs 
-
-
-            total_error /= nchans 
-            print('array: ', array, 'with ',in_size, 'input channels error was: ', total_error)
-
+# Evaluation error
 marco_data = {m:{} for m in marco_dataset.array_names}
 for array in marco_data.keys():
     for ss in ['impulse_response0deg']:
         print('getting ', array, ' ', ss)
-        X = marco_dataset.get_audio_numpy(array, ss)
+        X = marco_dataset.get_audio_numpy(ss,array)
 
         # extract features
         nfft = 1024
-        X = np.array([X[:,i*fs:i*fs+fs] for i in range(X.shape[1]//fs)])
-        X = np.array([[np.abs(librosa.stft(i, n_fft=nfft, hop_length=nfft//2)) for i in x] for x in X])
-        marco_data[array][ss] = X
+        X = np.array([np.abs(librosa.stft(x, n_fft=nfft, hop_length=nfft//2)) for x in X]).transpose(1,2,0)
+        X = 20*np.log10(X) 
+        X = (X - np.mean(X,axis=tuple(range(0,X.ndim-1))))/np.std(X,axis=tuple(range(0,X.ndim-1)))
+        marco_data[array][ss] = X 
 
 print("====================")
 print("====================")
@@ -272,18 +235,17 @@ print("Evaluation set error")
 # error after training
 for array in marco_data.keys():
 
-    coords = np.array([v for v in marco_dataset.capsule_coords[array].values()])
+    coords, _ = marco_dataset.get_capsule_coords_numpy(array)
 
     for ss in marco_data[array].keys():
 
         data = marco_data[array][ss]
-        nchans = data.shape[1]
+        nchans = data.shape[-1]
 
         for in_size in reversed(range(nchans-2,nchans)):
 
             total_error = 0
             for ichan in range(nchans):
-                #print('array ', array, 'in_size: ', in_size, 'out of ',len(coords),'ichan_out: ', ichan)
 
                 chan_range = list(range(nchans))
                 chan_range.remove(ichan)
@@ -294,25 +256,21 @@ for array in marco_data.keys():
 
                 for chans_in in all_chans_in:
 
-                    X = data[:,np.array(chans_in)]
-                    Xc = coords[np.array(chans_in)][np.newaxis,:].astype(np.float32)
-                    Y = data[:,ichan]
-                    Yc = coords[[ichan]]
-                    N, MB, H, W = X.shape
+                    X = data[...,np.array(chans_in)][np.newaxis]
+                    Xc = coords[np.array(chans_in)].astype(np.float32)
+                    Y = data[...,[ichan]][np.newaxis]
+                    Yc = coords[[ichan]].astype(np.float32)
+                    N, H, W, chans_in = X.shape
 
-                    for i in range(N):
-                  
-                        # supplementary network operations
-                        out = forward_pass(X[i][...,np.newaxis],Xc,Yc[np.newaxis,...].astype(np.float32),all_vars,N,MB,H,W,out_channels,channels_img)
-                        error = mse(out,Y[i][np.newaxis,...,np.newaxis])
-                        if i==0 and ichan == nchans//2:
-                            fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-                            axs[0].imshow(Y[i],aspect='auto')
-                            axs[1].imshow(np.squeeze(out),aspect='auto')
-                            plt.savefig('_'.join(['eval',ss,array,str(in_size),'.png']))
-                            plt.close()
-                        total_error += error.numpy()
-                    total_error /= N 
+                    out = forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1)
+                    error = mse(out,Y)
+                    total_error += error.numpy()
+
+                fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+                axs[0].imshow(np.squeeze(Y),aspect='auto')
+                axs[1].imshow(np.squeeze(out),aspect='auto')
+                plt.savefig('_'.join(['eval',ss,array,str(in_size),'.png']))
+                plt.close()
                 total_error /= ncombs 
             total_error /= nchans 
             print('array: ', array, 'with ',in_size, 'input channels error was: ', total_error)
