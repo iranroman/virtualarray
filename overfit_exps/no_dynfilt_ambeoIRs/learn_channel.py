@@ -6,12 +6,19 @@ from micarraylib.datasets import marco
 import matplotlib.pyplot as plt
 import sys
 
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
+
 marco_dataset = marco(download=False, data_home='/home/iran/datasets/marco')
 marco_dataset.fs = 22050
 fs = marco_dataset.fs
 datapoint_dur = 5
-lr = 1e-5
+lr = 2e-5
 patience = 10
+optimizer = tf.optimizers.Adam(learning_rate=lr,beta_1=0.99) 
 
 # obtaining the training data
 edge = 0
@@ -23,11 +30,11 @@ for array in marco_data.keys():
         X = marco_dataset.get_audio_numpy(ss, array)
 
         # extract features
-        nfft = 1024
-        X = np.array([[np.abs(librosa.stft(x[i:i+int(datapoint_dur*fs)], n_fft=nfft, hop_length=nfft//2))**2 for i in range(0,datapoint_dur*fs*((len(x)+244)//(datapoint_dur*fs)),int(datapoint_dur*fs))] for x in X]).transpose(1,2,3,0)
+        nfft = 4096
+        X = np.array([[np.abs(librosa.stft(x[i:i+int(datapoint_dur*fs)], n_fft=nfft, hop_length=nfft//8))**2 for i in range(0,datapoint_dur*fs*((len(x)+244)//(datapoint_dur*fs)),int(datapoint_dur*fs))] for x in X]).transpose(1,2,3,0)
         X = librosa.power_to_db(X,top_db=80) 
-        X = X-np.min(X[edge:,edge:],axis=tuple(range(1,X.ndim)),keepdims=True)
-        X = X/np.max(X[edge:,edge:],axis=tuple(range(1,X.ndim)),keepdims=True)
+        X = X-np.min(X[:,edge:,edge:],axis=tuple(range(1,X.ndim)),keepdims=True)
+        X = X/np.max(X[:,edge:,edge:],axis=tuple(range(1,X.ndim)),keepdims=True)
         marco_data[array][ss] = X
 
 # CNN parameters
@@ -122,7 +129,6 @@ sW3 = tf.Variable(tf.initializers.HeNormal()(shape=(sH2,sH3)))
 sb3 = tf.Variable(tf.constant_initializer(0.0)(shape=(sH3,)))
 
 # optimizer variables
-optimizer = tf.optimizers.Adam(learning_rate=lr) 
 mse = tf.losses.MeanSquaredError()
 all_vars = [sW1,sb1,sW2,sb2,sW3,sb3,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,F20,F21,F22,F23,F11b,F14b,F17b,F20b,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19,b20,b21,b22,b23,b11b,b14b,b17b,b20b]
 
@@ -278,12 +284,12 @@ while True:
                 X = marco_dataset.get_audio_numpy(ss,array)
         
                 # extract features
-                nfft = 1024
-                X = np.array([[np.abs(librosa.stft(x[i:i+int(datapoint_dur*fs)], n_fft=nfft, hop_length=nfft//2))**2 for i in range(0,datapoint_dur*fs*((len(x)+244)//(datapoint_dur*fs)),int(datapoint_dur*fs))] for x in X]).transpose(1,2,3,0)
+                nfft = 4096
+                X = np.array([[np.abs(librosa.stft(x[i:i+int(datapoint_dur*fs)], n_fft=nfft, hop_length=nfft//8))**2 for i in range(0,datapoint_dur*fs*((len(x)+244)//(datapoint_dur*fs)),int(datapoint_dur*fs))] for x in X]).transpose(1,2,3,0)
                 X = librosa.power_to_db(X,top_db=80) 
-                X = X-np.min(X[edge:,edge:],axis=tuple(range(1,X.ndim)),keepdims=True)
-                X = X/np.max(X[edge:,edge:],axis=tuple(range(1,X.ndim)),keepdims=True)
-                marco_data[array][ss] = X 
+                X = X-np.min(X[:,edge:,edge:],axis=tuple(range(1,X.ndim)),keepdims=True)
+                X = X/np.max(X[:,edge:,edge:],axis=tuple(range(1,X.ndim)),keepdims=True)
+                marco_data[array][ss] = X
         
 
     epoch_error = 0
@@ -321,7 +327,7 @@ while True:
 
                         if epoch > 0 and patience_count < patience:
                             with tf.GradientTape() as g:
-                                out= forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,0.25)
+                                out= forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,0.0)
                                 error = mse(out,Y)
                                 comb_error += error.numpy()
                             gradients = g.gradient(error,all_vars[6:])
@@ -333,9 +339,9 @@ while True:
                     total_error += comb_error/ncombs 
                 if patience_count >= patience:
                     fig, axs = plt.subplots(1, 3, figsize=(10, 5))
-                    axs[0].imshow(np.squeeze(Y[0]),aspect='auto',vmin=0.0,vmax=1.0)
-                    axs[1].imshow(np.squeeze(out[0]),aspect='auto',vmin=0.0,vmax=1.0)
-                    axs[2].imshow(np.abs(np.squeeze(out[0])-np.squeeze(Y[0])),aspect='auto',vmin=0.0,vmax=0.15)
+                    axs[0].imshow(np.squeeze(Y[0]),aspect='auto',vmin=0.0,vmax=1.0, origin='lower')
+                    axs[1].imshow(np.squeeze(out[0]),aspect='auto',vmin=0.0,vmax=1.0, origin='lower')
+                    axs[2].imshow(np.abs(np.squeeze(out[0])-np.squeeze(Y[0])),aspect='auto',vmin=0.0,vmax=1.0, origin='lower')
                     if epoch == final_epoch:
                         plt.savefig('_'.join(['plots/train',ss,array,str(in_size),'.png']))
                     if epoch == final_epoch+1:
@@ -372,7 +378,7 @@ while True:
         best_MSE = epoch_error/len(marco_data.keys())
         print("****************************")
         print("NEW best epoch error found!")
-        print('   (Best MSE so far:', best_MSE,')')
+        print('Best MSE so far:', best_MSE)
         print("saving parameters")
         [np.save(''.join(['best_params/parameter_',str(i),'.npy']),a.numpy()) for i,a in enumerate(all_vars)]
         best_vars = [tf.identity(var) for var in all_vars]
