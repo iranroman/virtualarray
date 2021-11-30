@@ -1,0 +1,32 @@
+
+====================================
+Ambeo single_sources0deg No. input chans 1 MSE: 0.0001436658640159294
+-----------------------------
+
+   (Best MSE so far: 0.0001434644655091688 )
+Average error was 0.0001436658640159294
+
+-----------------------------
+====================================
+Evaluation after training
+====================================
+getting  OCT3D   impulse_response0deg
+getting  Eigenmike   impulse_response0deg
+getting  PCMA3D   impulse_response0deg
+getting  DeccaCuboid   impulse_response0deg
+getting  2LCube   impulse_response0deg
+getting  Ambeo   impulse_response0deg
+getting  Hamasaki   impulse_response0deg
+OCT3D impulse_response0deg No. input chans 1 MSE: 0.0012314754357147547
+Eigenmike impulse_response0deg No. input chans 1 MSE: 0.0006230832960066055
+PCMA3D impulse_response0deg No. input chans 1 MSE: 0.0012671616601033343
+DeccaCuboid impulse_response0deg No. input chans 1 MSE: 0.0020133760990574956
+2LCube impulse_response0deg No. input chans 1 MSE: 0.0012643845855361885
+Ambeo impulse_response0deg No. input chans 1 MSE: 0.003118293903147181
+Hamasaki impulse_response0deg No. input chans 1 MSE: 0.0014187957893944149
+-----------------------------
+
+   (Best MSE so far: 0.0001434644655091688 )
+Average error was 0.0015623672527085679
+
+-----------------------------
