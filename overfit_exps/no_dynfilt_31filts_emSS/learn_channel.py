@@ -18,7 +18,6 @@ fs = marco_dataset.fs
 datapoint_dur = 0.1
 lr = 5e-8
 patience = 50
-droprate = 0.0
 optimizer = tf.optimizers.Adam(learning_rate=lr,beta_1=0.999) 
 
 def extract_features(X, fs, datapoint_dur, nfft = 4096, hop_length=512):
@@ -140,7 +139,7 @@ all_vars = [sW1,sb1,sW2,sb2,sW3,sb3,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F
 
 # The network architecture
 @tf.function()
-def forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate,bn_decay):
+def forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate):
 
     # unpack variables
     sW1,sb1,sW2,sb2,sW3,sb3,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14,F15,F16,F17,F18,F19,F20,F21,F22,F23,F11b,F14b,F17b,F20b,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19,b20,b21,b22,b23,b11b,b14b,b17b,b20b = all_vars
@@ -167,50 +166,40 @@ def forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate,bn_decay):
 
     # first downsample
     out = tf.divide(tf.nn.conv2d(X,F1d,1,padding='SAME'),31)
-    mu1, sigma1 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b1))
     out = tf.nn.conv2d(out,F2,1,padding='SAME')
-    mu2, sigma2 = tf.nn.moments(out, axes=0, keepdims=True)
     out1 = tf.nn.relu(tf.nn.bias_add(out,b2))
     out = tf.nn.max_pool2d(out1, ksize=2, strides=2,padding='SAME')
     out = tf.nn.dropout(out, droprate)
 
     # second downsample
     out = tf.nn.conv2d(out,F3,1,padding='SAME')
-    mu3, sigma3 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b3))
     out = tf.nn.conv2d(out,F4,1,padding='SAME')
-    mu4, sigma4 = tf.nn.moments(out, axes=0, keepdims=True)
     out2 = tf.nn.relu(tf.nn.bias_add(out,b4))
     out = tf.nn.max_pool2d(out2, ksize=2, strides=2,padding='SAME')
     out = tf.nn.dropout(out, droprate)
 
     # third downsample
     out = tf.nn.conv2d(out,F5,1,padding='SAME')
-    mu5, sigma5 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b5))
     out = tf.nn.conv2d(out,F6,1,padding='SAME')
-    mu6, sigma6 = tf.nn.moments(out, axes=0, keepdims=True)
     out3 = tf.nn.relu(tf.nn.bias_add(out,b6))
     out = tf.nn.max_pool2d(out3, ksize=2, strides=2,padding='SAME')
     out = tf.nn.dropout(out, droprate)
 
     # fourth downsample
     out = tf.nn.conv2d(out,F7,1,padding='SAME')
-    mu7, sigma7 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b7))
     out = tf.nn.conv2d(out,F8,1,padding='SAME')
-    mu8, sigma8 = tf.nn.moments(out, axes=0, keepdims=True)
     out4 = tf.nn.relu(tf.nn.bias_add(out,b8))
     out = tf.nn.max_pool2d(out4, ksize=2, strides=2,padding='SAME')
     out = tf.nn.dropout(out, droprate)
 
     # bottom
     out = tf.nn.conv2d(out,F9,1,padding='SAME')
-    mu9, sigma9 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b9))
     out = tf.nn.conv2d(out,F10,1,padding='SAME')
-    mu10, sigma10 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b10))
 
     # first upsample
@@ -221,10 +210,8 @@ def forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate,bn_decay):
     out = tf.nn.bias_add(out,b11b)
     out = tf.nn.dropout(out, droprate)
     out = tf.nn.conv2d(out,F12,1,padding='SAME')
-    mu12, sigma12 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b12))
     out = tf.nn.conv2d(out,F13,1,padding='SAME')
-    mu13, sigma13 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b13))
 
     # second upsample
@@ -235,10 +222,8 @@ def forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate,bn_decay):
     out = tf.nn.bias_add(out,b14b)
     out = tf.nn.dropout(out, droprate)
     out = tf.nn.conv2d(out,F15,1,padding='SAME')
-    mu15, sigma15 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b15))
     out = tf.nn.conv2d(out,F16,1,padding='SAME')
-    mu16, sigma16 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b16))
 
     # third upsample
@@ -249,10 +234,8 @@ def forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate,bn_decay):
     out = tf.nn.bias_add(out,b17b)
     out = tf.nn.dropout(out, droprate)
     out = tf.nn.conv2d(out,F18,1,padding='SAME')
-    mu18, sigma18 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b18))
     out = tf.nn.conv2d(out,F19,1,padding='SAME')
-    mu19, sigma19 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b19))
 
     # fourth upsample
@@ -263,17 +246,15 @@ def forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate,bn_decay):
     out = tf.nn.bias_add(out,b20b)
     out = tf.nn.dropout(out, droprate)
     out = tf.nn.conv2d(out,F21,1,padding='SAME')
-    mu21, sigma21 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b21))
     out = tf.nn.conv2d(out,F22,1,padding='SAME')
-    mu22, sigma22 = tf.nn.moments(out, axes=0, keepdims=True)
     out = tf.nn.relu(tf.nn.bias_add(out,b22))
 
     # output
     out = tf.nn.conv2d(out, F23d, 1, padding='SAME')
     out = tf.nn.sigmoid(tf.nn.bias_add(out,b23))
 
-    return out, all_mu, all_sigma2
+    return out
 
 # training and evaluation routine
 best_MSE = float("inf")
@@ -347,13 +328,13 @@ while True:
 
                         if epoch > 0 and patience_count < patience:
                             with tf.GradientTape() as g:
-                                out= forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate)
+                                out= forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,0.0)
                                 error = mse(out,Y)
                                 comb_error += error.numpy()
                             gradients = g.gradient(error,all_vars[6:])
                             optimizer.apply_gradients(zip(gradients,all_vars[6:]))
                         else:
-                            out = forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,droprate)
+                            out = forward_pass(X,Xc,Yc,all_vars,N,H,W,chans_in,ch1,0)
                             error = mse(out,Y)
                             comb_error += error.numpy()
                     total_error += comb_error/ncombs 
