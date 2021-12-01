@@ -1,0 +1,26 @@
+
+
+-----------------------------
+
+PATIENCE ELAPSED
+
+====================================
+Training done!
+Training set error w best parameters
+====================================
+Eigenmike single_sources0deg No. input chans 31 MSE: 6.581885827472433e-05
+-----------------------------
+
+   (Best MSE so far: 6.581686466233805e-05 )
+Average error was 6.581885827472433e-05
+
+-----------------------------
+====================================
+Evaluation after training
+====================================
+getting  Eigenmike   impulse_response0deg
+Eigenmike impulse_response0deg No. input chans 31 MSE: 0.0002751645224634558
+-----------------------------
+
+   (Best MSE so far: 6.581686466233805e-05 )
+Average error was 0.0002751645224634558
