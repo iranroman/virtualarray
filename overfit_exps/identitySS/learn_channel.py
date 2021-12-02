@@ -16,9 +16,9 @@ marco_dataset = marco(download=False, data_home='/home/iran/datasets/marco')
 marco_dataset.fs = 22050
 fs = marco_dataset.fs
 datapoint_dur = 0.1
-lr = 5e-6
+lr = 1e-5
 patience = 50
-optimizer = tf.optimizers.Adam(learning_rate=lr,beta_1=0.999) 
+optimizer = tf.optimizers.Adam(learning_rate=lr,beta_1=0.9) 
 
 def extract_features(X, fs, datapoint_dur, nfft = 4096, hop_length=512):
 
@@ -39,7 +39,7 @@ for array in marco_data.keys():
 
         # extract features
         X = extract_features(X, fs, datapoint_dur)
-        marco_data[array][ss] = X[[10,20,30,40]]
+        marco_data[array][ss] = X[range(100,len(X),10)]
 
 # CNN parameters
 nchans = 64
@@ -309,12 +309,8 @@ while True:
                 total_error = 0
                 for ichan in range(1):
 
-                    chan_range = list(range(nchans))
-                    chan_range.remove(ichan)
-
-                    all_chans_in = combinations(chan_range, in_size)
-                    ncombs = sum(1 for i in all_chans_in)
-                    all_chans_in = combinations(chan_range, in_size)
+                    ncombs = 1
+                    all_chans_in = [[0]]*ncombs
                     
                     comb_error = 0
                     for chans_in in all_chans_in:
@@ -347,11 +343,11 @@ while True:
                     if epoch == final_epoch+1:
                         plt.savefig('_'.join(['plots/eval',ss,array,str(in_size),'.png']))
                     plt.close()
-                in_size_error += total_error/nchans 
+                in_size_error += total_error/1 
                 if epoch > 0 and patience_count <= patience:
-                    print('epoch:', epoch, array, ss,'No. input chans',in_size, 'MSE:', total_error/nchans)
+                    print('epoch:', epoch, array, ss,'No. input chans',in_size, 'MSE:', total_error)
                 else:
-                    print(array,ss,'No. input chans',in_size, 'MSE:', total_error/nchans)
+                    print(array,ss,'No. input chans',in_size, 'MSE:', total_error)
             source_error += in_size_error/len(range(nchans-1,nchans))
 
         epoch_error += source_error/len(marco_data[array].keys())

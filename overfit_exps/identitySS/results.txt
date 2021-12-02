@@ -1,10 +1,17 @@
 
-====================================
-Ambeo single_sources0deg No. input chans 1 MSE: 0.0001436658640159294
 -----------------------------
 
-   (Best MSE so far: 0.0001434644655091688 )
-Average error was 0.0001436658640159294
+PATIENCE ELAPSED
+
+====================================
+Training done!
+Training set error w best parameters
+====================================
+Ambeo single_sources0deg No. input chans 1 MSE: 0.0002715604205150157
+-----------------------------
+
+   (Best MSE so far: 0.00027154802228324115 )
+Average error was 0.0002715604205150157
 
 -----------------------------
 ====================================
@@ -17,16 +24,16 @@ getting  DeccaCuboid   impulse_response0deg
 getting  2LCube   impulse_response0deg
 getting  Ambeo   impulse_response0deg
 getting  Hamasaki   impulse_response0deg
-OCT3D impulse_response0deg No. input chans 1 MSE: 0.0012314754357147547
-Eigenmike impulse_response0deg No. input chans 1 MSE: 0.0006230832960066055
-PCMA3D impulse_response0deg No. input chans 1 MSE: 0.0012671616601033343
-DeccaCuboid impulse_response0deg No. input chans 1 MSE: 0.0020133760990574956
-2LCube impulse_response0deg No. input chans 1 MSE: 0.0012643845855361885
-Ambeo impulse_response0deg No. input chans 1 MSE: 0.003118293903147181
-Hamasaki impulse_response0deg No. input chans 1 MSE: 0.0014187957893944149
+OCT3D impulse_response0deg No. input chans 1 MSE: 0.00034730456536635756
+Eigenmike impulse_response0deg No. input chans 1 MSE: 0.001021001604385674
+PCMA3D impulse_response0deg No. input chans 1 MSE: 0.0004216318775434047
+DeccaCuboid impulse_response0deg No. input chans 1 MSE: 0.0003384446317795664
+2LCube impulse_response0deg No. input chans 1 MSE: 0.0003819267440121621
+Ambeo impulse_response0deg No. input chans 1 MSE: 0.0006476049893535674
+Hamasaki impulse_response0deg No. input chans 1 MSE: 0.000764541735406965
 -----------------------------
 
-   (Best MSE so far: 0.0001434644655091688 )
-Average error was 0.0015623672527085679
+   (Best MSE so far: 0.00027154802228324115 )
+Average error was 0.0005603508782639567
 
 -----------------------------
