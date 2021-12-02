@@ -7,14 +7,14 @@ PATIENCE ELAPSED
 Training done!
 Training set error w best parameters
 ====================================
-Ambeo impulse_response-45d No. input chans 1 MSE: 4.487652555932679e-06
-Ambeo impulse_response+45d No. input chans 1 MSE: 5.946983947069384e-06
-Ambeo impulse_response+90d No. input chans 1 MSE: 3.219788823116687e-06
-Ambeo impulse_response-90d No. input chans 1 MSE: 3.603814093366964e-06
+Ambeo impulse_response-45d No. input chans 1 MSE: 7.554059152425907e-06
+Ambeo impulse_response+45d No. input chans 1 MSE: 9.8042164609069e-06
+Ambeo impulse_response+90d No. input chans 1 MSE: 5.78811386731104e-06
+Ambeo impulse_response-90d No. input chans 1 MSE: 6.4121122704818845e-06
 -----------------------------
 
-   (Best MSE so far: 4.209712168782668e-06 )
-Average error was 4.314559854871429e-06
+   (Best MSE so far: 7.25516642319235e-06 )
+Average error was 7.389625437781433e-06
 
 -----------------------------
 ====================================
@@ -27,16 +27,16 @@ getting  DeccaCuboid   impulse_response0deg
 getting  2LCube   impulse_response0deg
 getting  Ambeo   impulse_response0deg
 getting  Hamasaki   impulse_response0deg
-OCT3D impulse_response0deg No. input chans 1 MSE: 5.753511358206096e-07
-Eigenmike impulse_response0deg No. input chans 1 MSE: 7.736529215112715e-08
-PCMA3D impulse_response0deg No. input chans 1 MSE: 6.815081279556681e-07
-DeccaCuboid impulse_response0deg No. input chans 1 MSE: 9.051321588534241e-07
-2LCube impulse_response0deg No. input chans 1 MSE: 9.613864777849003e-07
-Ambeo impulse_response0deg No. input chans 1 MSE: 5.121364362518459e-06
-Hamasaki impulse_response0deg No. input chans 1 MSE: 2.0179987504062327e-06
+OCT3D impulse_response0deg No. input chans 1 MSE: 6.332445082080085e-06
+Eigenmike impulse_response0deg No. input chans 1 MSE: 1.0484716995051713e-05
+PCMA3D impulse_response0deg No. input chans 1 MSE: 7.254339948303823e-06
+DeccaCuboid impulse_response0deg No. input chans 1 MSE: 9.257774536308716e-06
+2LCube impulse_response0deg No. input chans 1 MSE: 9.030683713717735e-06
+Ambeo impulse_response0deg No. input chans 1 MSE: 9.005724223243305e-06
+Hamasaki impulse_response0deg No. input chans 1 MSE: 3.680651843751548e-05
 -----------------------------
 
-   (Best MSE so far: 4.209712168782668e-06 )
-Average error was 1.4771580436414887e-06
+   (Best MSE so far: 7.25516642319235e-06 )
+Average error was 1.2596028990888694e-05
 
------------------------------
+-

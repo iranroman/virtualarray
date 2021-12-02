@@ -308,13 +308,8 @@ while True:
                 total_error = 0
                 for ichan in range(1):
 
-                    chan_range = list(range(nchans))
-                    chan_range.remove(ichan)
-
-                    all_chans_in = combinations(chan_range, in_size)
-                    ncombs = sum(1 for i in all_chans_in)
-                    all_chans_in = combinations(chan_range, in_size)
-                    all_chans_in = [[0]]*4 # let's show the same datapoint four times in each epoch
+                    ncombs = 4
+                    all_chans_in = [[0]]*ncombs # let's show the same datapoint four times in each epoch
                     
                     comb_error = 0
                     for chans_in in all_chans_in:
@@ -347,12 +342,12 @@ while True:
                     if epoch == final_epoch+1:
                         plt.savefig('_'.join(['plots/eval',ss,array,str(in_size),'.png']))
                     plt.close()
-                in_size_error += total_error/nchans 
+                in_size_error += total_error/1
                 if epoch > 0 and patience_count <= patience:
-                    print('epoch:', epoch, array, ss,'No. input chans',in_size, 'MSE:', total_error/nchans)
+                    print('epoch:', epoch, array, ss,'No. input chans',in_size, 'MSE:', total_error/1)
                 else:
-                    print(array,ss,'No. input chans',in_size, 'MSE:', total_error/nchans)
-            source_error += in_size_error/len(range(nchans-1,nchans))
+                    print(array,ss,'No. input chans',in_size, 'MSE:', total_error/1)
+            source_error += in_size_error/len(range(1,2))
 
         epoch_error += source_error/len(marco_data[array].keys())
     print('-----------------------------')
