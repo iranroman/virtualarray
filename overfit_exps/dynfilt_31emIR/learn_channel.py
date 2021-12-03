@@ -16,7 +16,7 @@ marco_dataset = marco(download=False, data_home='/home/iran/datasets/marco')
 marco_dataset.fs = 22050
 fs = marco_dataset.fs
 datapoint_dur = 5
-lr = 1e-6
+lr = 5e-7
 patience = 10
 droprate = 0.0
 optimizer = tf.optimizers.Adam(learning_rate=lr,beta_1=0.9) 
