@@ -7,24 +7,24 @@ PATIENCE ELAPSED
 Training done!
 Training set error w best parameters
 ====================================
-Eigenmike impulse_response-45d No. input chans 31 MSE: 2.7158268494531512e-05
-Eigenmike impulse_response+45d No. input chans 31 MSE: 3.094740168307908e-05
-Eigenmike impulse_response+90d No. input chans 31 MSE: 1.9482877178234048e-05
-Eigenmike impulse_response-90d No. input chans 31 MSE: 2.185601078963373e-05
+Eigenmike impulse_response-45d No. input chans 31 MSE: 0.0008330142591148615
+Eigenmike impulse_response+45d No. input chans 31 MSE: 0.0009546787478029728
+Eigenmike impulse_response+90d No. input chans 31 MSE: 0.000599485298153013
+Eigenmike impulse_response-90d No. input chans 31 MSE: 0.0006726028514094651
 -----------------------------
 
-   (Best MSE so far: 2.4860854864527937e-05 )
-Average error was 2.4861139536369592e-05
+   (Best MSE so far: 0.0007649133185623214 )
+Average error was 0.0007649452891200781
 
 -----------------------------
 ====================================
 Evaluation after training
 ====================================
 getting  Eigenmike   impulse_response0deg
-Eigenmike impulse_response0deg No. input chans 31 MSE: 4.931282455800101e-05
+Eigenmike impulse_response0deg No. input chans 31 MSE: 0.0016289016930386424
 -----------------------------
 
-   (Best MSE so far: 2.4860854864527937e-05 )
-Average error was 4.931282455800101e-05
+   (Best MSE so far: 0.0007649133185623214 )
+Average error was 0.0016289016930386424
 
 -----------------------------

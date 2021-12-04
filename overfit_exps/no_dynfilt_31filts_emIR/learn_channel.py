@@ -347,11 +347,11 @@ while True:
                     if epoch == final_epoch+1:
                         plt.savefig('_'.join(['plots/eval',ss,array,str(in_size),'.png']))
                     plt.close()
-                in_size_error += total_error/nchans 
+                in_size_error += total_error/1 
                 if epoch > 0 and patience_count <= patience:
-                    print('epoch:', epoch, array, ss,'No. input chans',in_size, 'MSE:', total_error/nchans)
+                    print('epoch:', epoch, array, ss,'No. input chans',in_size, 'MSE:', total_error/1)
                 else:
-                    print(array,ss,'No. input chans',in_size, 'MSE:', total_error/nchans)
+                    print(array,ss,'No. input chans',in_size, 'MSE:', total_error/1)
             source_error += in_size_error/len(range(nchans-1,nchans))
 
         epoch_error += source_error/len(marco_data[array].keys())
@@ -379,9 +379,10 @@ while True:
         print("****************************")
         print("NEW best epoch error found!")
         print('Best MSE so far:', best_MSE)
-        print("saving parameters")
-        [np.save(''.join(['best_params/parameter_',str(i),'.npy']),a.numpy()) for i,a in enumerate(all_vars)]
-        best_vars = [tf.identity(var) for var in all_vars]
+        if patience_count > 0:
+            print("saving parameters")
+            [np.save(''.join(['best_params/parameter_',str(i),'.npy']),a.numpy()) for i,a in enumerate(all_vars)]
+            best_vars = [tf.identity(var) for var in all_vars]
         print("****************************")
         patience_count = 0
     epoch += 1
