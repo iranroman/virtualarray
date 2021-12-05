@@ -308,7 +308,7 @@ while True:
             for in_size in reversed(range(nchans-1,nchans)):
 
                 total_error = 0
-                for ichan in range(1):
+                for ichan in range(nchans):
 
                     chan_range = list(range(nchans))
                     chan_range.remove(ichan)
@@ -348,11 +348,11 @@ while True:
                     if epoch == final_epoch+1:
                         plt.savefig('_'.join(['plots/eval',ss,array,str(in_size),'.png']))
                     plt.close()
-                in_size_error += total_error/1
+                in_size_error += total_error/nchans
                 if epoch > 0 and patience_count <= patience:
-                    print('epoch:', epoch, array, ss,'No. input chans',in_size, 'MSE:', total_error/1)
+                    print('epoch:', epoch, array, ss,'No. input chans',in_size, 'MSE:', total_error/nchans)
                 else:
-                    print(array,ss,'No. input chans',in_size, 'MSE:', total_error/1)
+                    print(array,ss,'No. input chans',in_size, 'MSE:', total_error/nchans)
             source_error += in_size_error/len(range(nchans-1,nchans))
 
         epoch_error += source_error/len(marco_data[array].keys())
