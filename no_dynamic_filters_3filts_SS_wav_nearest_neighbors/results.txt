@@ -1,0 +1,36 @@
+
+====================================
+Training done!
+Training set error w best parameters
+====================================
+Ambeo single_sources-90d No. input chans 3 MSE: 0.04219569871202111
+Ambeo single_sources-75d No. input chans 3 MSE: 0.04137845803052187
+Ambeo single_sources-60d No. input chans 3 MSE: 0.04194099269807339
+Ambeo single_sources-45d No. input chans 3 MSE: 0.03957663243636489
+Ambeo single_sources-30d No. input chans 3 MSE: 0.04505555331707001
+Ambeo single_sources-15d No. input chans 3 MSE: 0.04369580838829279
+Eigenmike single_sources-90d No. input chans 3 MSE: 0.005381065740948543
+Eigenmike single_sources-75d No. input chans 3 MSE: 0.0057409114597248845
+Eigenmike single_sources-60d No. input chans 3 MSE: 0.0058800173428608105
+Eigenmike single_sources-45d No. input chans 3 MSE: 0.005603795230854303
+Eigenmike single_sources-30d No. input chans 3 MSE: 0.005730263990699314
+Eigenmike single_sources-15d No. input chans 3 MSE: 0.005656594272295479
+-----------------------------
+
+   (Best MSE so far: 0.023799947110698366 )
+Average error was 0.023986315968310617
+
+-----------------------------
+====================================
+Evaluation after training
+====================================
+getting  Ambeo   single_sources0deg
+getting  Eigenmike   single_sources0deg
+Ambeo single_sources0deg No. input chans 3 MSE: 0.04371752589941025
+Eigenmike single_sources0deg No. input chans 3 MSE: 0.005697210901416838
+-----------------------------
+
+   (Best MSE so far: 0.023799947110698366 )
+Average error was 0.024707368400413543
+
+-----------------------

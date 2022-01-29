@@ -1,0 +1,49 @@
+
+-----------------------------
+
+PATIENCE ELAPSED
+
+====================================
+Training done!
+Training set error w best parameters
+====================================
+Ambeo single_sources-90d No. input chans 3 MSE: 0.04344020318239927
+Ambeo single_sources-75d No. input chans 3 MSE: 0.04254369344562292
+Ambeo single_sources-60d No. input chans 3 MSE: 0.04405189864337444
+Ambeo single_sources-45d No. input chans 3 MSE: 0.04089389834553003
+Ambeo single_sources-30d No. input chans 3 MSE: 0.046856457367539406
+Ambeo single_sources-15d No. input chans 3 MSE: 0.04493588116019964
+Eigenmike single_sources-90d No. input chans 3 MSE: 0.005609038315014914
+Eigenmike single_sources-75d No. input chans 3 MSE: 0.006006824361975305
+Eigenmike single_sources-60d No. input chans 3 MSE: 0.006115592608693987
+Eigenmike single_sources-45d No. input chans 3 MSE: 0.005760887666838244
+Eigenmike single_sources-30d No. input chans 3 MSE: 0.0058326883081463166
+Eigenmike single_sources-15d No. input chans 3 MSE: 0.005780931700428482
+-----------------------------
+
+   (Best MSE so far: 0.02457554417924257 )
+Average error was 0.024818999592146913
+
+-----------------------------
+====================================
+Evaluation after training
+====================================
+getting  OCT3D   single_sources0deg
+getting  Eigenmike   single_sources0deg
+getting  PCMA3D   single_sources0deg
+getting  DeccaCuboid   single_sources0deg
+getting  2LCube   single_sources0deg
+getting  Ambeo   single_sources0deg
+getting  Hamasaki   single_sources0deg
+OCT3D single_sources0deg No. input chans 3 MSE: 0.06071673002507952
+Eigenmike single_sources0deg No. input chans 3 MSE: 0.0057058481688727625
+PCMA3D single_sources0deg No. input chans 3 MSE: 0.06227195863094595
+DeccaCuboid single_sources0deg No. input chans 3 MSE: 0.08491655646098985
+2LCube single_sources0deg No. input chans 3 MSE: 0.08065482063425912
+Ambeo single_sources0deg No. input chans 3 MSE: 0.044514790177345276
+Hamasaki single_sources0deg No. input chans 3 MSE: 0.09959180528918903
+-----------------------------
+
+   (Best MSE so far: 0.02457554417924257 )
+Average error was 0.06262464419809735
+
