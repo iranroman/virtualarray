@@ -1,0 +1,43 @@
+getting  OCT3D   piano_solo_2
+getting  Eigenmike   piano_solo_2
+getting  PCMA3D   piano_solo_2
+getting  DeccaCuboid   piano_solo_2
+getting  2LCube   piano_solo_2
+getting  Ambeo   piano_solo_2
+getting  Hamasaki   piano_solo_2
+-----------------------------
+
+For array OCT3D , the average error was 0.07426453712913725
+With mean angle of 69.18350520167499  degrees, and mean distance of 0.84190685
+
+-----------------------------
+-----------------------------
+
+For array Eigenmike , the average error was 0.0017333531868644059
+With mean angle of 38.00985943110235  degrees, and mean distance of 0.027351659
+
+-----------------------------
+-----------------------------
+
+For array PCMA3D , the average error was 0.07047291845083237
+With mean angle of 59.82628055092796  degrees, and mean distance of 0.67978156
+
+-----------------------------
+-----------------------------
+
+For array DeccaCuboid , the average error was 0.09411769691440794
+With mean angle of 68.23919912953222  degrees, and mean distance of 1.633665
+
+-----------------------------
+-----------------------------
+
+For array 2LCube , the average error was 0.08668873541884953
+With mean angle of 73.09484378427608  degrees, and mean distance of 1.0094348
+
+-----------------------------
+-----------------------------
+
+For array Hamasaki , the average error was 0.08370243230213721
+With mean angle of 48.613339574737424  degrees, and mean distance of 1.3468386
+
+-----------------------------

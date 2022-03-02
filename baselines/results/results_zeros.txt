@@ -1,0 +1,42 @@
+getting  OCT3D   piano_solo_2
+getting  Eigenmike   piano_solo_2
+getting  PCMA3D   piano_solo_2
+getting  DeccaCuboid   piano_solo_2
+getting  2LCube   piano_solo_2
+getting  Ambeo   piano_solo_2
+getting  Hamasaki   piano_solo_2
+-----------------------------
+
+For microphone OCT3D , the average error was 0.06486746
+
+-----------------------------
+-----------------------------
+
+For microphone Eigenmike , the average error was 0.09481446
+
+-----------------------------
+-----------------------------
+
+For microphone PCMA3D , the average error was 0.067299314
+
+-----------------------------
+-----------------------------
+
+For microphone DeccaCuboid , the average error was 0.07644755
+
+-----------------------------
+-----------------------------
+
+For microphone 2LCube , the average error was 0.082564145
+
+-----------------------------
+-----------------------------
+
+For microphone Ambeo , the average error was 0.08395585
+
+-----------------------------
+-----------------------------
+
+For microphone Hamasaki , the average error was 0.06690089
+
+-----------------------------
