@@ -15,8 +15,8 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
-marco_dataset = marco(download=False, data_home='/home/iran/datasets/marco')
-#marco_dataset = eigenscape_raw(download=False, data_home='/home/iran/datasets/eigenscape_raw')
+#marco_dataset = marco(download=False, data_home='/home/iran/datasets/marco')
+marco_dataset = eigenscape_raw(download=False, data_home='/home/iran/datasets/eigenscape_raw')
 marco_dataset.fs = 16000
 fs = marco_dataset.fs
 datapoint_dur = 0.1
