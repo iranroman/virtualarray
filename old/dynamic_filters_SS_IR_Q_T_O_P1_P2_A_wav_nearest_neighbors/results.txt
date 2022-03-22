@@ -1,0 +1,37 @@
+
+-----------------------------
+epoch: 242 Ambeo single_sources-75d No. input chans 3 MSE: 0.022497280966490507
+epoch: 242 Ambeo single_sources-15d No. input chans 3 MSE: 0.021782551426440477
+epoch: 242 Ambeo single_sources-30d No. input chans 3 MSE: 0.021964572835713625
+epoch: 242 Ambeo organ No. input chans 3 MSE: 0.03463069396093488
+epoch: 242 Ambeo acapella No. input chans 3 MSE: 0.032143138349056244
+epoch: 242 Ambeo single_sources-90d No. input chans 3 MSE: 0.022288278210908175
+epoch: 242 Ambeo piano_solo_1 No. input chans 3 MSE: 0.029495612252503633
+epoch: 242 Ambeo single_sources-45d No. input chans 3 MSE: 0.02057852130383253
+epoch: 242 Ambeo single_sources0deg No. input chans 3 MSE: 0.021019913721829653
+epoch: 242 Ambeo single_sources-60d No. input chans 3 MSE: 0.021424060687422752
+epoch: 242 Ambeo trio No. input chans 3 MSE: 0.031580090057104826
+epoch: 242 Ambeo quartet No. input chans 3 MSE: 0.027675434481352568
+epoch: 242 Eigenmike single_sources-75d No. input chans 3 MSE: 0.0019268879295850638
+epoch: 242 Eigenmike single_sources-15d No. input chans 3 MSE: 0.0016447236521344166
+epoch: 242 Eigenmike single_sources-30d No. input chans 3 MSE: 0.001631827884921222
+epoch: 242 Eigenmike organ No. input chans 3 MSE: 0.0015313999101636
+epoch: 242 Eigenmike acapella No. input chans 3 MSE: 0.001697473477179301
+epoch: 242 Eigenmike single_sources-90d No. input chans 3 MSE: 0.0017929120585904457
+epoch: 242 Eigenmike piano_solo_1 No. input chans 3 MSE: 0.0008824380374790053
+epoch: 242 Eigenmike single_sources-45d No. input chans 3 MSE: 0.0016111529148474801
+epoch: 242 Eigenmike single_sources0deg No. input chans 3 MSE: 0.0016603152253082953
+epoch: 242 Eigenmike single_sources-60d No. input chans 3 MSE: 0.0019482590432744473
+epoch: 242 Eigenmike trio No. input chans 3 MSE: 0.0014279758088378003
+epoch: 242 Eigenmike quartet No. input chans 3 MSE: 0.0016813999245641753
+-----------------------------
+
+   (Best MSE so far: 0.013656571379669913 )
+Average error was 0.013604871421686465
+
+-----------------------------
+****************************
+NEW best epoch error found!
+Best MSE so far: 0.013604871421686465
+saving parameters
+*********************

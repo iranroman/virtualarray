@@ -1,0 +1,39 @@
+
+-----------------------------
+
+PATIENCE ELAPSED
+
+====================================
+Training done!
+Training set error w best parameters
+====================================
+Eigenmike single_sources0deg No. input chans 31 MSE: 0.00626407032541465
+-----------------------------
+
+   (Best MSE so far: 0.005953089741524309 )
+Average error was 0.00626407032541465
+
+-----------------------------
+====================================
+Evaluation after training
+====================================
+getting  OCT3D   impulse_response0deg
+getting  Eigenmike   impulse_response0deg
+getting  PCMA3D   impulse_response0deg
+getting  DeccaCuboid   impulse_response0deg
+getting  2LCube   impulse_response0deg
+getting  Ambeo   impulse_response0deg
+getting  Hamasaki   impulse_response0deg
+OCT3D impulse_response0deg No. input chans 8 MSE: 0.0542620031370057
+Eigenmike impulse_response0deg No. input chans 31 MSE: 0.052777515491470695
+PCMA3D impulse_response0deg No. input chans 8 MSE: 0.053688738495111465
+DeccaCuboid impulse_response0deg No. input chans 8 MSE: 0.061645285103521824
+2LCube impulse_response0deg No. input chans 8 MSE: 0.06347058713436127
+Ambeo impulse_response0deg No. input chans 3 MSE: 0.05323871877044439
+Hamasaki impulse_response0deg No. input chans 11 MSE: 0.08098529527584712
+-----------------------------
+
+   (Best MSE so far: 0.005953089741524309 )
+Average error was 0.0600097347725375
+
+-----------------------------
