@@ -39,7 +39,7 @@ data_files = [f for f in os.listdir('/scratch/irr2020/unet/data_npy/eigenscape/'
 
 tr_filenames = sorted([f[:-4] for f in data_files if f not in vl_filenames and f not in ts_filenames])
 
-training_generator = DataGenerator(tr_filenames, dim=(1,1920), n_channels=3, tetras_dict=tetras_dict, array_coords_dict=array_coords_dict)
+training_generator = DataGenerator(tr_filenames, dim=(1,1920), n_channels=3, tetras_dict=tetras_dict, array_coords_dict=eigenmike.coords_dict)
 validation_generator = DataGenerator(vl_filenames, dim=(1,1920), n_channels=3, tetras_dict=tetras_dict, array_coords_dict=eigenmike.coords_dict)
 
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath='./chk/checkpoint',
