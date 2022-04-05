@@ -19,7 +19,7 @@ def unet(pretrained_weights = None, input_size = (256,256,1), coords_size = (3,3
     ctr2 = Reshape((1,33,3,64))(ctr2)
 
     inputs = Input(input_size)
-    conv1 = dynfilt_layers.Conv2D(padding="SAME")(inputs, inputsc)
+    conv1 = dynfilt_layers.Conv2D(padding="SAME")(inputs, ctr2)
     conv1 = Conv2D(64, (1,33), activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv1)
     pool1 = MaxPooling2D(pool_size=(1, 2))(conv1)
     conv2 = Conv2D(128, (1,33), activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(pool1)
