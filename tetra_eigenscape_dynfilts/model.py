@@ -14,8 +14,8 @@ import dynfilt_layers
 def unet(pretrained_weights = None, input_size = (256,256,1), coords_size = (3,3), drop=0.5):
 
     inputc = Input(coords_size)
-    ctr1 = Dense(64, activation="relu")(inputc)
-    ctr2 = Dense(33*64)(ctr2)
+    ctr1 = Dense(512, activation="relu")(inputc)
+    ctr2 = Dense(33*64)(ctr1)
     ctr2 = Reshape(1,33,3,64)(ctr2)
 
     inputs = Input(input_size)
