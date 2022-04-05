@@ -7,8 +7,8 @@ import tensorflow as tf
 from micarraylib.arraycoords.core import micarray
 from micarraylib.arraycoords import array_shapes_raw
 
-array_coords_dict = micarray(array_shapes_raw.eigenmike_raw, "polar", "degrees", "Eigenmike")
-array_coords_dict.standard_coords('cartesian')
+eigenmike = micarray(array_shapes_raw.eigenmike_raw, "polar", "degrees", "Eigenmike")
+eigenmike.standard_coords('cartesian')
 
 with open('tetras_dict.pkl', 'rb') as f:
     tetras_dict = pickle.load(f)
@@ -40,7 +40,7 @@ data_files = [f for f in os.listdir('/scratch/irr2020/unet/data_npy/eigenscape/'
 tr_filenames = sorted([f[:-4] for f in data_files if f not in vl_filenames and f not in ts_filenames])
 
 training_generator = DataGenerator(tr_filenames, dim=(1,1920), n_channels=3, tetras_dict=tetras_dict, array_coords_dict=array_coords_dict)
-validation_generator = DataGenerator(vl_filenames, dim=(1,1920), n_channels=3, tetras_dict=tetras_dict, array_coords_dict=array_coords_dict)
+validation_generator = DataGenerator(vl_filenames, dim=(1,1920), n_channels=3, tetras_dict=tetras_dict, array_coords_dict=eigenmike.coords_dict)
 
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath='./chk/checkpoint',
                                                 save_weights_only=True,
