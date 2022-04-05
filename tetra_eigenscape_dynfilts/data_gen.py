@@ -50,6 +50,6 @@ class DataGenerator(tensorflow.keras.utils.Sequence):
         X = np.take_along_axis(data, self.capsules_in, axis=-1).reshape(1920,self.batch_size,3)
         y = np.take_along_axis(data, self.capsules_out, axis=-1).T
 
-        Xc = [[self.array_coords_dict[str(c+1)] for c in self.capsules_in[i:i+3]] for i in range(0,120,3)]
+        Xc = np.array([[self.array_coords_dict[str(c+1)] for c in self.capsules_in[i:i+3]] for i in range(0,len(self.capsules_in[0]),3)])
 
         return (X[:,np.newaxis].transpose(2, 1, 0, 3), Xc), y[:,np.newaxis,:,np.newaxis]
