@@ -8,7 +8,7 @@ class DataGenerator(tensorflow.keras.utils.Sequence):
         self.dim = dim
         self.batch_size = batch_size
         self.list_IDs = list_IDs
-        self.data_arrays = [np.load('/scratch/ir2020/unet/data_npy/eigenscape/{}.npy'.format(f)) for f in list_IDs]
+        self.data_arrays = [np.load('/scratch/irr2020/unet/data_npy/eigenscape/{}.npy'.format(f)) for f in list_IDs]
         self.n_channels = n_channels
         self.clips_per_npy = 5000
         self.on_epoch_end()
