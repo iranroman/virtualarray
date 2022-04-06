@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --time=6-18:00:00
 #SBATCH --mem=128GB
-#SBATCH --job-name=unet_varray
+#SBATCH --job-name=tetra_eigenscape_dynfilt
 #SBATCH --mail-type=END
 #SBATCH --output=slurm_%j.out
 #SBATCH --gres=gpu:1
