@@ -24,7 +24,7 @@ ts_filenames = [
 ]
 
 
-data_files = [f for f in os.listdir('../data_npy/eigenscape/') if f.endswith(".npy")]
+data_files = [f for f in os.listdir('/scratch/irr2020/unet/data_npy/eigenscape/') if f.endswith(".npy")]
 
 tr_filenames = sorted([f[:-4] for f in data_files if f not in vl_filenames and f not in ts_filenames])
 
