@@ -13,7 +13,7 @@ import dynfilt_layers
 class BiasLayer(Layer):
     def __init__(self, units=None):
         super(BiasLayer, self).__init__()
-	self.units = units
+        self.units = units
 
     def build(self, input_shape):
         self.bias = self.add_weight('bias',
