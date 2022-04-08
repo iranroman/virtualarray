@@ -48,4 +48,4 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath='./chk/checkpoint',
 model = unet(input_size=(1,1920,3))
 model.summary()
     
-model.fit(x=training_generator,validation_data=validation_generator,epochs=100,callbacks=[cp_callback], shuffle=True, verbose=2)
+model.fit(x=training_generator,validation_data=validation_generator,epochs=1000,callbacks=[cp_callback], shuffle=True, verbose=2)
