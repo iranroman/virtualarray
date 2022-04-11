@@ -11,13 +11,7 @@ with open('tetras_dict.pkl', 'rb') as f:
 
 
 vl_filenames = [
-    'Beach-01-Raw',
-    'BusyStreet-04-Raw',
-    'PedestrianZone-06-Raw',
-    'QuietStreet-04-Raw',
     'ShoppingCentre-06-Raw',
-    'TrainStation-04-Raw',
-    'Woodland-07-Raw',
 ]
 
 ts_filenames = [
